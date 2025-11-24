@@ -261,7 +261,7 @@ const AIGuideModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
       if (base64Audio) {
         if (!audioContextRef.current) {
-          audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)({sampleRate: 24000});
+          audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({sampleRate: 24000});
         }
         
         setIsPlaying(true);
@@ -302,7 +302,7 @@ const AIGuideModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
         {/* Visualizer Area */}
         <div className="h-32 bg-black relative flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODFjN2EzZmE5ZTYwZTY5YjYyMDQ0ZTYwZTY5YjYyMDQ0ZTYwZTY5YyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/3o7TKSjRrfIPjeiVyM/giphy.gif')] opacity-20 bg-cover"></div>
+          <div className="absolute inset-0 bg-[url('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODFjN2EzZmE5ZTYwZTY5YjYyMDQ0ZTYwZTY5YjYyMDQ0ZTYwZTY5YjYyMDQ0ZTYwZTY5YyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/3o7TKSjRrfIPjeiVyM/giphy.gif')] opacity-20 bg-cover"></div>
           {isGenerating ? (
             <div className="text-emerald-500 font-pixel text-xs animate-pulse">PROCESSING...</div>
           ) : isPlaying ? (
