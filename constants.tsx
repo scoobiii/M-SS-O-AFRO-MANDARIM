@@ -116,3 +116,13 @@ export const PROJECT_ROADMAP = {
     }
   ]
 };
+
+export const SUPPORTED_LANGUAGES = [
+  { code: 'en', name: 'English', voice: 'Puck' },
+  { code: 'zh', name: 'Mandarin (中文)', voice: 'Fenrir' },
+  { code: 'pt', name: 'Português', voice: 'Puck' },
+  { code: 'es', name: 'Español', voice: 'Kore' },
+  { code: 'fr', name: 'Français', voice: 'Charon' },
+  { code: 'de', name: 'Deutsch', voice: 'Fenrir' },
+  { code: 'ja', name: 'Japanese (日本語)', voice: 'Kore' },
+];

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { CLASSES, LEVELS, INITIAL_MISSIONS, SPRITE_PROMPT, PROJECT_ROADMAP } from './constants';
+import React, { useState, useEffect, useRef } from 'react';
+import { GoogleGenAI, Modality } from "@google/genai";
+import { CLASSES, LEVELS, INITIAL_MISSIONS, SPRITE_PROMPT, PROJECT_ROADMAP, SUPPORTED_LANGUAGES } from './constants';
 import { CharacterClass, ClassType, Mission, UserState } from './types';
 import { 
   Shield, 
@@ -17,8 +18,42 @@ import {
   Github,
   GitCommit,
   Clock,
-  Box
+  Box,
+  MessageSquare,
+  Mic,
+  Volume2,
+  X
 } from 'lucide-react';
+
+// --- Utils ---
+function decode(base64: string) {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function decodeAudioData(
+  data: Uint8Array,
+  ctx: AudioContext,
+  sampleRate: number,
+  numChannels: number,
+): Promise<AudioBuffer> {
+  const dataInt16 = new Int16Array(data.buffer);
+  const frameCount = dataInt16.length / numChannels;
+  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = buffer.getChannelData(channel);
+    for (let i = 0; i < frameCount; i++) {
+      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    }
+  }
+  return buffer;
+}
 
 // --- Sub-Components ---
 
@@ -175,6 +210,153 @@ const BossBattle: React.FC<{ onWin: () => void, onFlee: () => void }> = ({ onWin
   );
 };
 
+// --- AI Guide Component ---
+const AIGuideModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const [inputText, setInputText] = useState('');
+  const [selectedLang, setSelectedLang] = useState(SUPPORTED_LANGUAGES[0]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  const generateAndSpeak = async () => {
+    if (!inputText.trim()) return;
+    setIsGenerating(true);
+
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      
+      const systemInstruction = `
+        You are the Cyber Oracle (网络先知), a wise and futuristic guide for the 'Mission Mandarin' project.
+        
+        PROJECT DATA:
+        Status: ${PROJECT_ROADMAP.status}
+        Description: ${PROJECT_ROADMAP.description}
+        Sprints: ${JSON.stringify(PROJECT_ROADMAP.sprints)}
+        Classes: ${JSON.stringify(CLASSES.map(c => c.name))}
+        Levels: ${JSON.stringify(LEVELS.map(l => l.title))}
+        
+        YOUR MISSION:
+        Answer the user's question about the project, its roadmap, or its features.
+        Keep the answer concise (under 50 words) and helpful.
+        Maintain a mystical, cyberpunk persona.
+        
+        IMPORTANT: You MUST answer in ${selectedLang.name}.
+      `;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash-preview-tts",
+        contents: [{ parts: [{ text: inputText }] }],
+        config: {
+          responseModalities: [Modality.AUDIO],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: selectedLang.voice },
+            },
+          },
+          systemInstruction: systemInstruction,
+        },
+      });
+
+      const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+
+      if (base64Audio) {
+        if (!audioContextRef.current) {
+          audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)({sampleRate: 24000});
+        }
+        
+        setIsPlaying(true);
+        const audioBuffer = await decodeAudioData(
+          decode(base64Audio),
+          audioContextRef.current,
+          24000,
+          1
+        );
+        
+        const source = audioContextRef.current.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(audioContextRef.current.destination);
+        source.onended = () => setIsPlaying(false);
+        source.start();
+        
+        setInputText(''); // Clear input after success
+      }
+    } catch (error) {
+      console.error("Oracle Error:", error);
+      alert("The connection to the Oracle was interrupted (API Error).");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="fixed bottom-24 right-6 z-50 w-80 md:w-96">
+      <div className="bg-slate-900 border-2 border-emerald-500 rounded-lg shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden flex flex-col animate-fade-in-up">
+        {/* Header */}
+        <div className="bg-slate-800 p-3 flex justify-between items-center border-b border-slate-700">
+           <div className="flex items-center gap-2 text-emerald-400 font-bold">
+             <MessageSquare size={18} />
+             <span>CYBER ORACLE LINK</span>
+           </div>
+           <button onClick={onClose} className="text-slate-500 hover:text-white"><X size={18} /></button>
+        </div>
+
+        {/* Visualizer Area */}
+        <div className="h-32 bg-black relative flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODFjN2EzZmE5ZTYwZTY5YjYyMDQ0ZTYwZTY5YjYyMDQ0ZTYwZTY5YyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/3o7TKSjRrfIPjeiVyM/giphy.gif')] opacity-20 bg-cover"></div>
+          {isGenerating ? (
+            <div className="text-emerald-500 font-pixel text-xs animate-pulse">PROCESSING...</div>
+          ) : isPlaying ? (
+            <div className="flex gap-1 items-end h-12">
+               {[1,2,3,4,5].map(i => (
+                 <div key={i} className="w-2 bg-emerald-500 animate-bounce" style={{ height: `${Math.random() * 100}%`, animationDuration: `${0.5 + Math.random()}s` }}></div>
+               ))}
+            </div>
+          ) : (
+            <div className="text-slate-600 font-pixel text-xs">AWAITING INPUT</div>
+          )}
+        </div>
+
+        {/* Controls */}
+        <div className="p-4 bg-slate-900 space-y-3">
+          <div>
+            <label className="text-xs text-slate-500 mb-1 block">SELECT LANGUAGE PROTOCOL</label>
+            <select 
+              className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded p-2 focus:border-emerald-500 outline-none"
+              value={selectedLang.code}
+              onChange={(e) => setSelectedLang(SUPPORTED_LANGUAGES.find(l => l.code === e.target.value) || SUPPORTED_LANGUAGES[0])}
+            >
+              {SUPPORTED_LANGUAGES.map(lang => (
+                <option key={lang.code} value={lang.code}>{lang.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="Ask about the project..."
+              className="flex-1 bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded p-2 focus:border-emerald-500 outline-none"
+              onKeyPress={(e) => e.key === 'Enter' && generateAndSpeak()}
+            />
+            <button 
+              onClick={generateAndSpeak}
+              disabled={isGenerating || isPlaying}
+              className={`p-2 rounded flex items-center justify-center transition-colors ${
+                isGenerating ? 'bg-slate-700' : 'bg-emerald-600 hover:bg-emerald-700'
+              } text-white`}
+            >
+              {isGenerating ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Volume2 size={20} />}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 // --- Project Hub Component ---
 const ProjectHub: React.FC = () => {
   return (
@@ -272,6 +454,7 @@ const ProjectHub: React.FC = () => {
 const App: React.FC = () => {
   const [view, setView] = useState<'LANDING' | 'SELECT' | 'DASHBOARD'>('LANDING');
   const [inBattle, setInBattle] = useState(false);
+  const [showOracle, setShowOracle] = useState(false);
   const [user, setUser] = useState<UserState>({
     name: 'Novice',
     class: null,
@@ -325,7 +508,7 @@ const App: React.FC = () => {
   if (view === 'SELECT') return <ClassSelector onSelect={handleClassSelect} />;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row relative">
       {/* Sidebar / Stats */}
       <aside className="w-full md:w-80 bg-slate-900 border-r border-slate-800 p-6 flex flex-col">
         <div className="mb-8 text-center">
@@ -566,6 +749,19 @@ const App: React.FC = () => {
         {activeTab === 'PROJECT' && <ProjectHub />}
 
       </main>
+
+      {/* Floating Oracle Button */}
+      {view === 'DASHBOARD' && (
+        <button 
+          onClick={() => setShowOracle(!showOracle)}
+          className="fixed bottom-6 right-6 p-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)] z-50 transition-all hover:scale-110"
+        >
+          {showOracle ? <X size={24} /> : <MessageSquare size={24} />}
+        </button>
+      )}
+
+      {/* Oracle Guide Modal */}
+      {showOracle && <AIGuideModal onClose={() => setShowOracle(false)} />}
 
       {/* Battle Overlay */}
       {inBattle && <BossBattle onWin={() => endBattle(true)} onFlee={() => endBattle(false)} />}
