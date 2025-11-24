@@ -22,7 +22,7 @@ export interface Mission {
   title: string;
   xp: number;
   completed: boolean;
-  type: 'DAILY' | 'BOSS' | 'STORY';o
+  type: 'DAILY' | 'BOSS' | 'STORY';
 }
 
 export interface LevelData {

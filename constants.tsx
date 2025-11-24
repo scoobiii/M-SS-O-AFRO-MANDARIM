@@ -65,3 +65,54 @@ clean outlines, no anti-aliasing, authentic GBA constraints,
 consistent lighting per frame, animation-friendly. 
 match reference image grid. 
 no backgrounds, transparent index 0.`;
+
+export const PROJECT_ROADMAP = {
+  status: "ALPHA v0.2 🚧",
+  description: "A gamified platform integrating Mandarin learning, Programming, and Tech Culture with RPG elements. Currently in active development focusing on core loops and asset generation.",
+  sprints: [
+    {
+      id: "S1",
+      title: "Sprint 1: Foundations",
+      status: "DONE",
+      items: [
+        "✅ Class System Architecture (Chaos/Data/Pixel/Quantum)",
+        "✅ Basic UI/UX with Cyberpunk Aesthetic",
+        "✅ XP & Leveling Engine",
+        "✅ Static Asset Integration"
+      ]
+    },
+    {
+      id: "S2",
+      title: "Sprint 2: Battle & Assets (Current)",
+      status: "IN_PROGRESS",
+      items: [
+        "🔄 Boss Battle Logic (Guardian of Tones)",
+        "🔄 Sprite Generator Prompt Engineer",
+        "🚧 Sound Effects Integration",
+        "🚧 Mobile Responsiveness Polish"
+      ]
+    },
+    {
+      id: "S3",
+      title: "Sprint 3: Content Expansion",
+      status: "PLANNED",
+      items: [
+        "📅 Level 2: Python/Logic Modules",
+        "📅 'Demon of Debug' AI Chatbot Integration",
+        "📅 Voice Recognition for Tones",
+        "📅 User Persistence (Local Storage)"
+      ]
+    },
+    {
+      id: "S4",
+      title: "Sprint 4: Launch Protocol",
+      status: "PLANNED",
+      items: [
+        "📦 Web3 Wallet Connection (Optional Badge)",
+        "📦 PWA (Progressive Web App) Config",
+        "🚀 1.0 Public Release",
+        "✨ 'Techno-Monk' Certification NFT"
+      ]
+    }
+  ]
+};
