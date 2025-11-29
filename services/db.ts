@@ -1,4 +1,3 @@
-
 import { UserState, Mission } from '../types';
 import { INITIAL_MISSIONS } from '../constants';
 
@@ -9,11 +8,21 @@ const COLLECTIONS = {
   MISSIONS: 'mm_missions',
 };
 
+const DEFAULT_USER: UserState = {
+  name: 'Novice',
+  class: null,
+  level: 1,
+  xp: 0,
+  maxXp: 1000,
+  badges: []
+};
+
 class LocalDB {
   private get<T>(collection: string): T | null {
     try {
       const data = localStorage.getItem(collection);
-      return data ? JSON.parse(data) : null;
+      if (!data || data === "undefined") return null;
+      return JSON.parse(data);
     } catch (e) {
       console.error(`DB Read Error [${collection}]:`, e);
       return null;
@@ -31,15 +40,9 @@ class LocalDB {
   // --- User Repository ---
   
   getUser(): UserState {
-    const user = this.get<UserState>(COLLECTIONS.USERS);
-    return user || {
-      name: 'Novice',
-      class: null,
-      level: 1,
-      xp: 0,
-      maxXp: 1000,
-      badges: []
-    };
+    const saved = this.get<UserState>(COLLECTIONS.USERS);
+    // Safe Hydration: Merge saved data with defaults to ensure all fields exist
+    return saved ? { ...DEFAULT_USER, ...saved } : DEFAULT_USER;
   }
 
   saveUser(user: UserState): void {
@@ -49,8 +52,17 @@ class LocalDB {
   // --- Missions Repository ---
 
   getMissions(): Mission[] {
-    const missions = this.get<Mission[]>(COLLECTIONS.MISSIONS);
-    return missions || INITIAL_MISSIONS;
+    const saved = this.get<Mission[]>(COLLECTIONS.MISSIONS);
+    
+    if (!saved || !Array.isArray(saved) || saved.length === 0) {
+      return INITIAL_MISSIONS;
+    }
+    
+    // Schema Migration: Check for new missions in INITIAL_MISSIONS that aren't in saved
+    const savedIds = new Set(saved.map(m => m.id));
+    const newMissions = INITIAL_MISSIONS.filter(m => !savedIds.has(m.id));
+    
+    return [...saved, ...newMissions];
   }
 
   saveMissions(missions: Mission[]): void {
@@ -59,9 +71,15 @@ class LocalDB {
 
   // --- Reset/Debug ---
   reset(): void {
-    localStorage.removeItem(COLLECTIONS.USERS);
-    localStorage.removeItem(COLLECTIONS.MISSIONS);
-    window.location.reload();
+    try {
+      localStorage.removeItem(COLLECTIONS.USERS);
+      localStorage.removeItem(COLLECTIONS.MISSIONS);
+      window.location.reload();
+    } catch (e) {
+      console.error("Reset failed", e);
+      localStorage.clear();
+      window.location.reload();
+    }
   }
 }
 

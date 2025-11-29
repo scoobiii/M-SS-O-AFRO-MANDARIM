@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { User } from 'lucide-react';
 
@@ -10,7 +11,7 @@ export const BossBattle: React.FC<BossBattleProps> = ({ onWin, onFlee }) => {
   const [turn, setTurn] = useState(0);
   const [hp, setHp] = useState(100);
   const [bossHp, setBossHp] = useState(100);
-  const [log, setLog] = useState<string[]>(["Guardião dos Tons: 'Mostre-me sua maestria nos 4 tons!'"]);
+  const [log, setLog] = useState<string[]>(["Guardian of Tones: 'Show me your mastery of the 4 tones!'"]);
 
   const handleAttack = (tone: number) => {
     // Simulated logic: Correct tone deals damage
@@ -18,14 +19,14 @@ export const BossBattle: React.FC<BossBattleProps> = ({ onWin, onFlee }) => {
     const bossDamage = Math.floor(Math.random() * 10) + 5;
     
     setBossHp(prev => Math.max(0, prev - damage));
-    setLog(prev => [`Você lançou Explosão de Tom ${tone}! Causou ${damage} DMG.`, ...prev]);
+    setLog(prev => [`You cast Tone ${tone} Blast! Dealt ${damage} DMG.`, ...prev]);
 
     if (bossHp - damage <= 0) {
       setTimeout(onWin, 1500);
     } else {
       setTimeout(() => {
         setHp(prev => Math.max(0, prev - bossDamage));
-        setLog(prev => [`Guardião contra-ataca com 'Mā Má Mǎ Mà'! Você levou ${bossDamage} DMG.`, ...prev]);
+        setLog(prev => [`Guardian counters with 'Mā Má Mǎ Mà'! You took ${bossDamage} DMG.`, ...prev]);
       }, 800);
     }
     setTurn(prev => prev + 1);
@@ -35,7 +36,7 @@ export const BossBattle: React.FC<BossBattleProps> = ({ onWin, onFlee }) => {
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
       <div className="max-w-4xl w-full bg-slate-900 border-4 border-red-600 rounded-lg p-6 relative shadow-[0_0_50px_rgba(220,38,38,0.5)]">
         <h2 className="text-3xl font-pixel text-red-500 text-center mb-2">BOSS BATTLE</h2>
-        <h3 className="text-xl text-white text-center mb-8">Guardião dos Tons <span className="text-red-500">声调守卫</span></h3>
+        <h3 className="text-xl text-white text-center mb-8">Guardian of Tones <span className="text-red-500">声调守卫</span></h3>
 
         <div className="flex justify-between items-center mb-8 px-4 md:px-12">
           {/* Player */}
@@ -72,24 +73,24 @@ export const BossBattle: React.FC<BossBattleProps> = ({ onWin, onFlee }) => {
         <div className="grid grid-cols-2 gap-4">
           <button onClick={() => handleAttack(1)} className="p-4 bg-slate-800 hover:bg-purple-700 border border-purple-500 rounded text-center transition-colors">
             <span className="block text-2xl mb-1">ˉ</span>
-            Tom 1 (Alto)
+            Tone 1 (High)
           </button>
           <button onClick={() => handleAttack(2)} className="p-4 bg-slate-800 hover:bg-purple-700 border border-purple-500 rounded text-center transition-colors">
             <span className="block text-2xl mb-1">ˊ</span>
-            Tom 2 (Ascendente)
+            Tone 2 (Rising)
           </button>
           <button onClick={() => handleAttack(3)} className="p-4 bg-slate-800 hover:bg-purple-700 border border-purple-500 rounded text-center transition-colors">
             <span className="block text-2xl mb-1">ˇ</span>
-            Tom 3 (Mergulho)
+            Tone 3 (Dip)
           </button>
           <button onClick={() => handleAttack(4)} className="p-4 bg-slate-800 hover:bg-purple-700 border border-purple-500 rounded text-center transition-colors">
             <span className="block text-2xl mb-1">ˋ</span>
-            Tom 4 (Descendente)
+            Tone 4 (Falling)
           </button>
         </div>
         
         <button onClick={onFlee} className="absolute top-4 right-4 text-slate-500 hover:text-white text-xs underline">
-          Fugir da Batalha
+          Flee Battle
         </button>
       </div>
     </div>

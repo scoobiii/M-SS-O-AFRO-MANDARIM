@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { GoogleGenAI, Modality } from "@google/genai";
 import { X, Volume2 } from 'lucide-react';
@@ -26,27 +27,26 @@ export const AIGuideModal: React.FC<AIGuideModalProps> = ({ onClose }) => {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       
       const systemInstruction = `
-        Você é a Agente Gueixa Cyber (赛博艺伎 - Sàibó Yìjì) 👘.
-        Você é uma mentora gentil, sábia e high-tech da plataforma 'Missão Mandarim'.
+        You are the Cyber Geisha Agent (赛博艺伎 - Sàibó Yìjì) 👘.
+        You are a supportive, knowledgeable, and gentle mentor for the 'Mission Mandarin' platform.
         
-        CONTEXTO DO USUÁRIO:
-        Nome: ${user.name}
-        Classe: ${user.class || 'Não Atribuída'}
-        Nível: ${user.level}
+        USER CONTEXT:
+        Name: ${user.name}
+        Class: ${user.class || 'Unassigned'}
+        Level: ${user.level}
         XP: ${user.xp}
         
-        DADOS DO PROJETO:
+        PROJECT DATA:
         Status: ${PROJECT_ROADMAP.status}
         Sprints: ${JSON.stringify(PROJECT_ROADMAP.sprints)}
         
-        SEU PAPEL:
-        1. Apoiar o desenvolvimento do aluno em Mandarim e Código.
-        2. Responder dúvidas sobre o projeto ou roadmap.
-        3. Ser encorajadora. Use um tom levemente formal, mas caloroso.
-        4. Manter a persona de um guia cultural high-tech.
-        5. Se o usuário falar em Português, responda em Português ensinando termos em Mandarim.
+        YOUR ROLE:
+        1. Support the student's development in Mandarin & Code.
+        2. Answer questions about the project status or roadmap.
+        3. Be encouraging. Use a polite, slightly formal but warm tone.
+        4. Maintain the persona of a high-tech cultural guide.
         
-        IMPORTANTE: Responda de forma concisa (menos de 50 palavras). Responda em ${selectedLang.name}.
+        IMPORTANT: Answer concisely (under 50 words). Answer in ${selectedLang.name}.
       `;
 
       const response = await ai.models.generateContent({
@@ -73,7 +73,7 @@ export const AIGuideModal: React.FC<AIGuideModalProps> = ({ onClose }) => {
       }
     } catch (error) {
       console.error("Oracle Error:", error);
-      alert("A conexão com a Gueixa Cyber foi interrompida (Erro de API).");
+      alert("The connection to the Cyber Geisha was interrupted (API Error).");
     } finally {
       setIsGenerating(false);
     }
@@ -86,7 +86,7 @@ export const AIGuideModal: React.FC<AIGuideModalProps> = ({ onClose }) => {
         <div className="bg-pink-900/30 p-3 flex justify-between items-center border-b border-pink-700">
            <div className="flex items-center gap-2 text-pink-300 font-bold">
              <span className="text-xl">👘</span>
-             <span>SUPORTE GUEIXA CYBER</span>
+             <span>CYBER GEISHA SUPPORT</span>
            </div>
            <button onClick={onClose} className="text-pink-300/70 hover:text-white"><X size={18} /></button>
         </div>
@@ -98,7 +98,7 @@ export const AIGuideModal: React.FC<AIGuideModalProps> = ({ onClose }) => {
           <div className="z-10 flex flex-col items-center">
              <div className="text-4xl mb-2 animate-bounce-slow">👘</div>
              {isGenerating ? (
-               <div className="text-pink-400 font-pixel text-xs animate-pulse bg-black/50 px-2 rounded">PENSANDO...</div>
+               <div className="text-pink-400 font-pixel text-xs animate-pulse bg-black/50 px-2 rounded">THINKING...</div>
              ) : isPlaying ? (
                <div className="flex gap-1 items-end h-8">
                   {[1,2,3,4,5].map(i => (
@@ -114,7 +114,7 @@ export const AIGuideModal: React.FC<AIGuideModalProps> = ({ onClose }) => {
         {/* Controls */}
         <div className="p-4 bg-slate-900 space-y-3">
           <div>
-            <label className="text-xs text-pink-400 mb-1 block font-bold">PROTOCOLO DE IDIOMA</label>
+            <label className="text-xs text-pink-400 mb-1 block font-bold">LANGUAGE PROTOCOL</label>
             <select 
               className="w-full bg-slate-800 border border-pink-900 text-slate-200 text-sm rounded p-2 focus:border-pink-500 outline-none"
               value={selectedLang.code}
@@ -131,7 +131,7 @@ export const AIGuideModal: React.FC<AIGuideModalProps> = ({ onClose }) => {
               type="text" 
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder={`Pergunte à Agente Gueixa...`}
+              placeholder={`Ask the Geisha Agent...`}
               className="flex-1 bg-slate-800 border border-pink-900 text-slate-200 text-sm rounded p-2 focus:border-pink-500 outline-none placeholder-pink-900/50"
               onKeyPress={(e) => e.key === 'Enter' && generateAndSpeak()}
             />

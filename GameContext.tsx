@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { UserState, Mission, CharacterClass, ClassType } from '../types';
 import { CLASSES } from '../constants';
@@ -28,22 +29,19 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { playSuccessSound } = useAudio();
 
-  // State Initialization: Lazy load from DB
+  // State
+  // Hydrate from DB (LocalStorage) or use defaults
   const [user, setUser] = useState<UserState>(() => db.getUser());
   const [missions, setMissions] = useState<Mission[]>(() => db.getMissions());
   
-  // View Logic: If user has a class, they are already in the game (Persistence Check)
+  // If user has a class, skip landing; otherwise show landing
   const [view, setView] = useState<ViewState>(() => user.class ? 'DASHBOARD' : 'LANDING');
   const [activeTab, setActiveTab] = useState<TabState>('MISSIONS');
 
-  // Persistence Effects: Save whenever state changes
-  useEffect(() => {
-    db.saveUser(user);
-  }, [user]);
-
-  useEffect(() => {
-    db.saveMissions(missions);
-  }, [missions]);
+  // Persistence Effects
+  // Autosave whenever user or missions change
+  useEffect(() => db.saveUser(user), [user]);
+  useEffect(() => db.saveMissions(missions), [missions]);
 
   // Derived Data
   const selectedClassData = CLASSES.find(c => c.id === user.class) || null;

@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Sword, Scroll, CheckCircle, CheckCircle2, Lock, Palette, Play, Copy, Terminal as TerminalIcon } from 'lucide-react';
+import { Sword, Scroll, CheckCircle, Zap, Lock, Palette, Play, Copy, Terminal as TerminalIcon } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { LEVELS, SPRITE_PROMPT } from '../constants';
 import { ProjectHub } from './ProjectHub';
@@ -12,11 +13,11 @@ export const MissionsTab: React.FC<{ onStartBattle: () => void }> = ({ onStartBa
     <div className="max-w-4xl mx-auto animate-fade-in">
       <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-6">
         <div>
-          <h1 className="text-3xl font-bold mb-1">Centro de Controle de Missões</h1>
-          <p className="text-slate-400">Complete tarefas para acumular Mana e XP.</p>
+          <h1 className="text-3xl font-bold mb-1">Mission Control Center</h1>
+          <p className="text-slate-400">Complete tasks to accumulate Mana and XP.</p>
         </div>
         <div className="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700">
-          <span className="text-emerald-400 font-mono font-bold">STREAK: 3 DIAS</span>
+          <span className="text-emerald-400 font-mono font-bold">STREAK: 3 DAYS</span>
         </div>
       </header>
 
@@ -55,14 +56,14 @@ export const MissionsTab: React.FC<{ onStartBattle: () => void }> = ({ onStartBa
                   onClick={onStartBattle}
                   className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded shadow-[0_0_15px_rgba(220,38,38,0.4)] animate-pulse"
                 >
-                  LUTAR BOSS
+                  FIGHT BOSS
                 </button>
               ) : (
                 <button 
                   onClick={() => completeMission(mission.id)}
                   className="px-4 py-2 bg-slate-700 hover:bg-emerald-600 hover:text-white text-slate-300 rounded transition-colors"
                 >
-                  Completar
+                  Complete
                 </button>
               )}
             </div>
@@ -80,8 +81,8 @@ export const SkillTreeTab: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
        <header className="mb-8 border-b border-slate-800 pb-6">
-          <h1 className="text-3xl font-bold mb-1">Caminho do Tecno-Monge <span className="text-purple-500 text-xl">技术僧之道</span></h1>
-          <p className="text-slate-400">Desbloqueie novas realidades linguísticas e técnicas.</p>
+          <h1 className="text-3xl font-bold mb-1">Techno-Monk Path <span className="text-purple-500 text-xl">技术僧之道</span></h1>
+          <p className="text-slate-400">Unlock new linguistic and technical realities.</p>
         </header>
         
         <div className="relative p-10 min-h-[600px] bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
@@ -112,7 +113,7 @@ export const SkillTreeTab: React.FC = () => {
                       >
                         {isUnlocked ? <CheckCircle size={24} /> : <Lock size={24} />}
                       </div>
-                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-mono text-slate-600">NÍVEL {lvl.level}</div>
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-mono text-slate-600">LVL {lvl.level}</div>
                    </div>
 
                    {/* Boss Side */}
@@ -134,14 +135,14 @@ export const SkillTreeTab: React.FC = () => {
 export const SpriteWorkshopTab: React.FC = () => {
   const copyPrompt = () => {
     navigator.clipboard.writeText(SPRITE_PROMPT);
-    alert('Prompt de Sprite copiado!');
+    alert('Sprite Prompt copied to clipboard!');
   };
 
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
        <header className="mb-8 border-b border-slate-800 pb-6">
-          <h1 className="text-3xl font-bold mb-1">Oficina do Artesão Pixel <span className="text-pink-500 text-xl">像素工坊</span></h1>
-          <p className="text-slate-400">Gere assets para suas missões.</p>
+          <h1 className="text-3xl font-bold mb-1">Pixel Artisan Workshop <span className="text-pink-500 text-xl">像素工坊</span></h1>
+          <p className="text-slate-400">Generate assets for your missions.</p>
         </header>
 
         <div className="bg-slate-800 border-2 border-pink-500/50 rounded-lg p-6 relative overflow-hidden">
@@ -162,10 +163,10 @@ export const SpriteWorkshopTab: React.FC = () => {
               onClick={copyPrompt}
               className="flex items-center gap-2 px-6 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded font-bold transition-all"
             >
-              <Copy size={18} /> Copiar Prompt
+              <Copy size={18} /> Copy Prompt
             </button>
             <button className="flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded font-bold transition-all opacity-50 cursor-not-allowed">
-              <TerminalIcon size={18} /> Gerar (Requer API Key)
+              <TerminalIcon size={18} /> Generate (Requires API Key)
             </button>
           </div>
 
@@ -175,7 +176,7 @@ export const SpriteWorkshopTab: React.FC = () => {
               <div key={i} className="w-6 h-6 border border-pink-500/30 bg-pink-500/10"></div>
             ))}
           </div>
-          <p className="text-center text-xs text-slate-500 mt-2">Preview da Grade 4x4</p>
+          <p className="text-center text-xs text-slate-500 mt-2">4x4 Grid Structure Preview</p>
         </div>
     </div>
   );
